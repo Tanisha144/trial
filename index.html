@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta name="theme-color" content="#2c5f7c" />
+<title>SmritiCare — Cognitive Care for the North East</title>
+<style>
+  :root{
+    --primary:#2c5f7c; --primary-dark:#1e4258; --accent:#e8a33d;
+    --accent-soft:#fdf3e3; --bg:#f7f9fb; --surface:#fff;
+    --text:#1f2d36; --muted:#5a6b76; --border:#e2e8ed;
+    --success:#3d8b6d; --danger:#c25b5b; --radius:16px;
+    --shadow:0 4px 18px rgba(31,45,54,.08);
+    --shadow-lg:0 12px 40px rgba(31,45,54,.14);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Segoe UI',system-ui,-apple-system,'Noto Sans',sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;font-size:18px}
+  h1,h2,h3,h4{line-height:1.25;font-weight:700;color:var(--primary-dark)}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  input,select{font-family:inherit;font-size:1rem}
+  .container{width:min(1100px,94%);margin:0 auto}
+
+  /* ===== LOGIN SCREEN ===== */
+  #loginScreen{
+    min-height:100vh;display:grid;place-items:center;padding:24px;
+    background:radial-gradient(circle at 20% 20%,rgba(232,163,61,.15),transparent 45%),
+               radial-gradient(circle at 80% 80%,rgba(44,95,124,.15),transparent 45%),
+               linear-gradient(135deg,#f7f9fb,#eaf2f7);
+  }
+  .login-card{
+    background:#fff;border-radius:24px;padding:38px;
+    box-shadow:var(--shadow-lg);width:min(480px,100%);
+    border:1px solid var(--border);
+  }
+  .login-brand{
+    display:flex;align-items:center;gap:12px;margin-bottom:8px;
+    font-size:1.6rem;font-weight:800;color:var(--primary-dark);
+  }
+  .login-brand .brand-mark{
+    width:52px;height:52px;border-radius:14px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:grid;place-items:center;color:#fff;font-size:1.6rem;
+  }
+  .login-sub{color:var(--muted);margin-bottom:26px;font-size:.98rem}
+
+  .field{margin-bottom:18px}
+  .field label{display:block;font-weight:600;margin-bottom:7px;font-size:.95rem;color:var(--primary-dark)}
+  .field input,.field select{
+    width:100%;padding:15px 16px;border:2px solid var(--border);
+    border-radius:12px;background:#fff;transition:.15s;font-size:1rem;
+  }
+  .field input:focus,.field select:focus{outline:none;border-color:var(--primary)}
+
+  .role-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+  .role-btn{
+    padding:16px 10px;border-radius:14px;border:2px solid var(--border);
+    background:#fff;text-align:center;transition:.15s;font-size:.88rem;font-weight:600;
+    color:var(--muted);
+  }
+  .role-btn .r-icon{display:block;font-size:1.8rem;margin-bottom:6px}
+  .role-btn.active{border-color:var(--primary);background:#e3eff6;color:var(--primary-dark)}
+  .role-btn:hover{border-color:var(--primary)}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:16px 28px;border-radius:30px;font-weight:700;font-size:1.02rem;
+    transition:.2s;min-height:56px;width:100%;
+  }
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-dark);transform:translateY(-2px)}
+  .btn-outline{background:#fff;color:var(--primary);border:2px solid var(--border)}
+  .btn-outline:hover{border-color:var(--primary)}
+  .btn-accent{background:var(--accent);color:#fff}
+  .btn-accent:hover{background:#d18f2b}
+  .btn-small{padding:11px 20px;font-size:.92rem;min-height:auto;width:auto}
+
+  .lang-mini{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;justify-content:center}
+  .lang-mini button{
+    padding:7px 14px;border-radius:20px;background:var(--bg);
+    border:1px solid var(--border);font-size:.82rem;font-weight:600;color:var(--muted);
+  }
+  .lang-mini button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+  /* ===== APP SHELL ===== */
+  #app{display:none;min-height:100vh;flex-direction:column}
+  #app.visible{display:flex}
+
+  .topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 0;
+    position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  .topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.15rem;color:var(--primary-dark)}
+  .brand-mark{width:40px;height:40px;border-radius:11px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    display:grid;place-items:center;color:#fff;font-size:1.2rem}
+  .topbar-actions{display:flex;gap:8px;align-items:center}
+  .icon-btn{width:46px;height:46px;border-radius:12px;background:var(--bg);
+    border:1px solid var(--border);font-size:1.2rem;display:grid;place-items:center;transition:.15s}
+  .icon-btn:hover{background:var(--accent-soft);border-color:var(--accent)}
+  .user-pill{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:30px;
+    background:var(--bg);border:1px solid var(--border);font-size:.88rem;font-weight:600;color:var(--muted)}
+  .user-pill .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);
+    color:#fff;display:grid;place-items:center;font-size:1rem;font-weight:700}
+
+  .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:14px 0;
+    border-bottom:1px solid var(--border);background:var(--bg);
+    position:sticky;top:66px;z-index:40}
+  .tab{padding:14px 6px;border-radius:12px;background:#fff;
+    border:2px solid var(--border);font-weight:700;font-size:.9rem;color:var(--muted);
+    display:flex;flex-direction:column;align-items:center;gap:4px;transition:.15s;min-height:56px}
+  .tab .tab-icon{font-size:1.35rem}
+  .tab:hover{border-color:var(--primary);color:var(--primary)}
+  .tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+  main{flex:1;padding:26px 0 80px}
+  .screen{display:none;animation:fade .3s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .card{background:#fff;border-radius:var(--radius);border:1px solid var(--border);
+    padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+  .card h3{font-size:1.15rem;margin-bottom:12px}
+  .section-title{font-size:1.5rem;margin-bottom:6px}
+  .section-sub{color:var(--muted);margin-bottom:20px}
+
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+
+  .big-btn{display:flex;align-items:center;gap:16px;padding:20px;
+    border-radius:16px;background:#fff;border:2px solid var(--border);
+    width:100%;text-align:left;transition:.2s;min-height:84px}
+  .big-btn:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow)}
+  .big-btn .bb-icon{width:56px;height:56px;border-radius:14px;background:var(--accent-soft);
+    display:grid;place-items:center;font-size:1.8rem;flex-shrink:0}
+  .big-btn .bb-text strong{display:block;font-size:1.08rem;color:var(--text)}
+  .big-btn .bb-text small{color:var(--muted);font-size:.88rem}
+
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+    border-radius:30px;background:var(--accent-soft);color:#8a5a12;
+    font-weight:700;font-size:.88rem;border:1px solid #f2d9ae}
+  .chip.blue{background:#e3eff6;color:#1e4258;border-color:#c0d8e6}
+  .chip.green{background:#e5f2ec;color:#265a45;border-color:#bfe0d2}
+
+  .game-header{display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:12px;margin-bottom:16px}
+  .game-title{font-size:1.35rem;font-weight:800}
+  .game-meta{display:flex;gap:10px;flex-wrap:wrap}
+
+  .game-board{display:grid;gap:12px;margin:20px auto;justify-content:center;max-width:520px}
+  .tile{aspect-ratio:1;border-radius:16px;background:#fff;border:2px solid var(--border);
+    font-size:2.2rem;display:grid;place-items:center;cursor:pointer;
+    transition:.2s;user-select:none;min-height:70px}
+  .tile:hover{transform:scale(1.04);border-color:var(--primary)}
+  .tile.matched{background:#e5f2ec;border-color:var(--success);cursor:default}
+  .tile.flipped{background:var(--accent-soft);border-color:var(--accent)}
+
+  .choice-row{display:grid;gap:12px;margin-top:20px}
+  .choice-btn{padding:20px;border-radius:16px;background:#fff;border:2px solid var(--border);
+    font-size:1.1rem;font-weight:600;transition:.2s;min-height:70px;color:var(--text)}
+  .choice-btn:hover{border-color:var(--primary);background:var(--accent-soft)}
+  .choice-btn.correct{background:#d9f0e4;border-color:var(--success);color:#1e5c42}
+  .choice-btn.wrong{background:#f6dede;border-color:var(--danger);color:#7a2c2c}
+
+  .prompt-box{text-align:center;padding:30px;border-radius:16px;
+    background:linear-gradient(135deg,#f2f7fa,#e3eff6);
+    border:2px dashed #b8d0dd;margin:16px 0}
+  .prompt-box .big-emoji{font-size:4rem;line-height:1;margin-bottom:12px}
+  .prompt-box .prompt-text{font-size:1.4rem;font-weight:700;color:var(--primary-dark)}
+
+  .progress-strip{height:12px;background:var(--border);border-radius:10px;overflow:hidden;margin:14px 0}
+  .progress-strip i{display:block;height:100%;
+    background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .4s}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+  .stat{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--border);text-align:center}
+  .stat .val{font-size:1.9rem;font-weight:800;color:var(--primary);line-height:1}
+  .stat .lbl{font-size:.85rem;color:var(--muted);margin-top:6px}
+
+  .reminder{display:flex;align-items:center;gap:14px;padding:16px;background:#fff;
+    border-radius:14px;border:1px solid var(--border);margin-bottom:10px;transition:.15s}
+  .reminder.done{opacity:.55;background:#f1f9f5}
+  .reminder.done .rem-text strong{text-decoration:line-through}
+  .rem-time{width:70px;text-align:center;padding:10px 4px;border-radius:12px;
+    background:var(--accent-soft);color:#8a5a12;font-weight:800;font-size:.98rem;flex-shrink:0}
+  .rem-text{flex:1}
+  .rem-text strong{display:block;font-size:1.02rem}
+  .rem-text small{color:var(--muted);font-size:.85rem}
+  .rem-check{width:46px;height:46px;border-radius:50%;border:2px solid var(--border);
+    background:#fff;display:grid;place-items:center;font-size:1.3rem;transition:.15s;flex-shrink:0}
+  .rem-check:hover{border-color:var(--success);background:#f1f9f5}
+  .reminder.done .rem-check{background:var(--success);border-color:var(--success);color:#fff}
+
+  .alert-row{display:flex;gap:14px;align-items:flex-start;padding:16px;
+    border-radius:12px;background:var(--bg);margin-bottom:10px;border-left:4px solid var(--accent)}
+  .alert-row.warn{border-left-color:var(--danger);background:#fdf4f4}
+  .alert-row.ok{border-left-color:var(--success);background:#f1f9f5}
+  .alert-row .ar-icon{font-size:1.5rem}
+  .alert-row .ar-body strong{display:block;font-size:.96rem;margin-bottom:2px}
+  .alert-row .ar-body small{color:var(--muted);font-size:.85rem}
+
+  .bar-chart{display:flex;align-items:flex-end;gap:10px;height:170px;padding:16px 0}
+  .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .bar{width:100%;background:linear-gradient(180deg,var(--primary),#4a86a8);
+    border-radius:8px 8px 0 0;min-height:6px;transition:height .6s}
+  .bar-lbl{font-size:.76rem;color:var(--muted);font-weight:600}
+
+  .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(120px);
+    background:var(--primary-dark);color:#fff;padding:16px 26px;border-radius:30px;
+    font-weight:600;z-index:300;transition:.3s;box-shadow:var(--shadow-lg);max-width:90%;text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(15,30,40,.55);
+    z-index:200;place-items:center;padding:20px}
+  .modal-bg.show{display:grid}
+  .modal{background:#fff;border-radius:20px;padding:32px;max-width:500px;width:100%;
+    box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto}
+
+  @media(max-width:780px){
+    body{font-size:17px}
+    .tabs{grid-template-columns:repeat(5,1fr);gap:4px;padding:10px 0}
+    .tab{padding:10px 4px;font-size:.76rem}
+    .tab .tab-icon{font-size:1.15rem}
+    .card{padding:18px}
+    .login-card{padding:26px}
+    .role-picker{grid-template-columns:repeat(3,1fr);gap:8px}
+    .role-btn{padding:12px 6px;font-size:.78rem}
+    .role-btn .r-icon{font-size:1.5rem}
+  }
+  @media(max-width:520px){
+    .tabs .tab .tab-label{display:none}
+    .brand span.brand-name{display:none}
+    .user-pill span.uname{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================================================
+     LOGIN SCREEN
+     ================================================== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="brand-mark">🧠</div>
+      <span>SmritiCare</span>
+    </div>
+    <p class="login-sub">Cognitive care & memory assistance for the North Eastern Region</p>
+
+    <div class="field">
+      <label>I am a…</label>
+      <div class="role-picker">
+        <button type="button" class="role-btn active" data-role="patient" onclick="pickRole('patient')">
+          <span class="r-icon">🧓</span>Patient
+        </button>
+        <button type="button" class="role-btn" data-role="caregiver" onclick="pickRole('caregiver')">
+          <span class="r-icon">👨‍👩‍👧</span>Caregiver
+        </button>
+        <button type="button" class="role-btn" data-role="asha" onclick="pickRole('asha')">
+          <span class="r-icon">🧑‍⚕️</span>ASHA
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="loginName">Your name</label>
+      <input id="loginName" type="text" placeholder="e.g. Ramesh Das" autocomplete="name" />
+    </div>
+
+    <div class="field">
+      <label for="loginPhone">Mobile number (or ID)</label>
+      <input id="loginPhone" type="tel" placeholder="e.g. 98765 43210" autocomplete="tel" />
+    </div>
+
+    <div class="field">
+      <label for="loginLang">Preferred language</label>
+      <select id="loginLang">
+        <option value="en">English</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+        <option value="bn">বাংলা (Bengali)</option>
+        <option value="as">অসমীয়া (Assamese)</option>
+        <option value="mz">Mizo ṭawng</option>
+        <option value="kh">Khasi</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" onclick="doLogin()">Sign In →</button>
+
+    <div class="lang-mini">
+      <button onclick="quickLang('en',event)" class="active">EN</button>
+      <button onclick="quickLang('hi',event)">हिं</button>
+      <button onclick="quickLang('bn',event)">বাং</button>
+      <button onclick="quickLang('as',event)">অসম</button>
+      <button onclick="quickLang('mz',event)">MZ</button>
+      <button onclick="quickLang('kh',event)">KH</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     MAIN APP
+     ================================================== -->
+<div id="app">
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">🧠</div>
+        <span class="brand-name">SmritiCare</span>
+      </div>
+      <div class="topbar-actions">
+        <span class="user-pill" id="userPill">
+          <span class="avatar" id="userAvatar">R</span>
+          <span class="uname" id="userName">Ramesh</span>
+        </span>
+        <button class="icon-btn" onclick="openLangModal()" title="Language">🌐</button>
+        <button class="icon-btn" id="voiceBtn" onclick="toggleVoice()" title="Voice">🔊</button>
+        <button class="icon-btn" onclick="doLogout()" title="Logout">🚪</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" data-screen="home" onclick="switchScreen('home')">
+        <span class="tab-icon">🏠</span><span class="tab-label">Home</span>
+      </button>
+      <button class="tab" data-screen="games" onclick="switchScreen('games')">
+        <span class="tab-icon">🎮</span><span class="tab-label">Games</span>
+      </button>
+      <button class="tab" data-screen="reminders" onclick="switchScreen('reminders')">
+        <span class="tab-icon">⏰</span><span class="tab-label">Reminders</span>
+      </button>
+      <button class="tab" data-screen="dashboard" onclick="switchScreen('dashboard')">
+        <span class="tab-icon">📊</span><span class="tab-label">Progress</span>
+      </button>
+      <button class="tab" data-screen="caregiver" onclick="switchScreen('caregiver')">
+        <span class="tab-icon">👨‍👩‍👧</span><span class="tab-label">Caregiver</span>
+      </button>
+    </div>
+  </div>
+
+  <main class="container">
+
+    <!-- ===== HOME ===== -->
+    <section class="screen active" id="screen-home">
+      <div class="card" style="background:linear-gradient(135deg,#2c5f7c,#1e4258);color:#fff;border:none">
+        <h2 class="section-title" style="color:#fff" id="greeting">Namaste 👋</h2>
+        <p style="color:rgba(255,255,255,.9);margin-bottom:16px" id="dailyMsg">
+          Your first session is ready. Let's begin.
+        </p>
+        <div class="progress-strip" style="background:rgba(255,255,255,.2)">
+          <i id="weekProgress" style="width:68%"></i>
+        </div>
+        <p style="color:rgba(255,255,255,.85);font-size:.9rem" id="weekLabel">
+          Weekly goal: 5 of 7 sessions complete — 68%
+        </p>
+      </div>
+
+      <h3 class="section-title">What would you like to do today?</h3>
+      <p class="section-sub">Choose any activity — take your time.</p>
+
+      <div class="grid-2">
+        <button class="big-btn" onclick="switchScreen('games'); startGame('memory')">
+          <div class="bb-icon">🃏</div>
+          <div class="bb-text"><strong>Memory Match</strong><small>Find matching pairs · 5 min</small></div>
+        </button>
+        <button class="big-btn" onclick="switchScreen('games'); startGame('sequence')">
+          <div class="bb-icon">🔢</div>
+          <div class="bb-text"><strong>Number Recall</strong><small>Remember the numbers · 4 min</small></div>
+        </button>
+        <button class="big-btn" onclick="switchScreen('games'); startGame('routine')">
+          <div class="bb-icon">☀️</div>
+          <div class="bb-text"><strong>Daily Routine</strong><small>Order your daily activities</small></div>
+        </button>
+        <button class="big-btn" onclick="switchScreen('games'); startGame('pattern')">
+          <div class="bb-icon">🎨</div>
+          <div class="bb-text"><strong>Pattern & Objects</strong><small>Recognize familiar items</small></div>
+        </button>
+        <button class="big-btn" onclick="switchScreen('games'); startGame('emotion')">
+          <div class="bb-icon">😊</div>
+          <div class="bb-text"><strong>Emotion Match</strong><small>Recognize feelings</small></div>
+        </button>
+        <button class="big-btn" onclick="switchScreen('reminders')">
+          <div class="bb-icon">⏰</div>
+          <div class="bb-text"><strong>Today's Reminders</strong><small id="remCountHome">Loading…</small></div>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== GAMES ===== -->
+    <section class="screen" id="screen-games">
+      <div id="gameMenu">
+        <h2 class="section-title">Cognitive Games</h2>
+        <p class="section-sub">Each game trains a different part of the mind. Difficulty adapts to you.</p>
+        <div class="grid-2">
+          <button class="big-btn" onclick="startGame('memory')">
+            <div class="bb-icon">🃏</div><div class="bb-text"><strong>Memory Match</strong><small>Episodic memory</small></div>
+          </button>
+          <button class="big-btn" onclick="startGame('sequence')">
+            <div class="bb-icon">🔢</div><div class="bb-text"><strong>Number Recall</strong><small>Working memory</small></div>
+          </button>
+          <button class="big-btn" onclick="startGame('routine')">
+            <div class="bb-icon">☀️</div><div class="bb-text"><strong>Daily Routine</strong><small>Sequencing & recall</small></div>
+          </button>
+          <button class="big-btn" onclick="startGame('pattern')">
+            <div class="bb-icon">🎨</div><div class="bb-text"><strong>Pattern Recognition</strong><small>Visual attention</small></div>
+          </button>
+          <button class="big-btn" onclick="startGame('emotion')">
+            <div class="bb-icon">😊</div><div class="bb-text"><strong>Emotion Match</strong><small>Emotional engagement</small></div>
+          </button>
+          <button class="big-btn" onclick="startGame('attention')">
+            <div class="bb-icon">🎯</div><div class="bb-text"><strong>Focus Tap</strong><small>Attention & concentration</small></div>
+          </button>
+        </div>
+      </div>
+      <div id="gamePlay" style="display:none"></div>
+    </section>
+
+    <!-- ===== REMINDERS ===== -->
+    <section class="screen" id="screen-reminders">
+      <h2 class="section-title">Today's Reminders</h2>
+      <p class="section-sub">Tap the circle when you complete each one.</p>
+      <div id="reminderList"></div>
+
+      <div class="card" style="margin-top:20px;background:var(--accent-soft);border-color:#f2d9ae">
+        <h3 style="margin-bottom:8px">🔔 Add a new reminder</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+          <input id="newRemText" placeholder="e.g. Take BP tablet"
+            style="flex:1;min-width:180px;padding:14px;border:2px solid var(--border);border-radius:12px" />
+          <input id="newRemTime" type="time" value="09:00"
+            style="padding:14px;border:2px solid var(--border);border-radius:12px" />
+          <button class="btn btn-primary btn-small" onclick="addReminder()">Add</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DASHBOARD ===== -->
+    <section class="screen" id="screen-dashboard">
+      <h2 class="section-title">Your Progress</h2>
+      <p class="section-sub">See how you're doing this week.</p>
+
+      <div class="stat-grid">
+        <div class="stat"><div class="val" id="statSessions">0</div><div class="lbl">Sessions this week</div></div>
+        <div class="stat"><div class="val" id="statAccuracy">0%</div><div class="lbl">Average accuracy</div></div>
+        <div class="stat"><div class="val" id="statLevel">1</div><div class="lbl">AI difficulty level</div></div>
+        <div class="stat"><div class="val" id="statGames">0</div><div class="lbl">Games played</div></div>
+      </div>
+
+      <div class="card">
+        <h3>Weekly cognitive activity</h3>
+        <p class="section-sub" style="margin-bottom:8px">Minutes of engagement per day</p>
+        <div class="bar-chart" id="weeklyChart"></div>
+      </div>
+
+      <div class="card">
+        <h3>Cognitive domains</h3>
+        <div id="domainBars"></div>
+      </div>
+    </section>
+
+    <!-- ===== CAREGIVER ===== -->
+    <section class="screen" id="screen-caregiver">
+      <h2 class="section-title">Caregiver Dashboard</h2>
+      <p class="section-sub">Monitor patient progress and receive alerts.</p>
+
+      <div class="stat-grid">
+        <div class="stat"><div class="val" style="color:var(--success)">Good</div><div class="lbl">Overall status</div></div>
+        <div class="stat"><div class="val" id="cgSessions">0/7</div><div class="lbl">Sessions this week</div></div>
+        <div class="stat"><div class="val" id="cgAccuracy">0%</div><div class="lbl">Avg. accuracy</div></div>
+        <div class="stat"><div class="val" id="cgAlerts" style="color:var(--accent)">0</div><div class="lbl">Active alerts</div></div>
+      </div>
+
+      <div class="card">
+        <h3>🔔 Alerts & observations</h3>
+        <div id="alertList"></div>
+      </div>
+
+      <div class="card">
+        <h3>Caregiver wellbeing check</h3>
+        <p class="section-sub" style="margin-bottom:14px">How are you feeling today?</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+          <button class="choice-btn" onclick="caregiverCheck('Good')">😊 Good</button>
+          <button class="choice-btn" onclick="caregiverCheck('Tired')">😐 Tired</button>
+          <button class="choice-btn" onclick="caregiverCheck('Stressed')">😟 Stressed</button>
+        </div>
+      </div>
+
+      <div class="card" style="background:linear-gradient(135deg,#1e4258,#2c5f7c);color:#fff">
+        <h3 style="color:#fff">📤 Sync status</h3>
+        <p style="color:rgba(255,255,255,.85);margin-top:8px" id="syncMsg">
+          All session data synced.
+        </p>
+        <button class="btn btn-accent btn-small" style="margin-top:14px;width:auto" onclick="forceSync()">Sync Now</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ===== LANGUAGE MODAL ===== -->
+<div class="modal-bg" id="langModal">
+  <div class="modal">
+    <h3>🌐 Choose your language</h3>
+    <p style="color:var(--muted);margin-bottom:18px">Select the language you're most comfortable with.</p>
+    <div id="langList"></div>
+    <button class="btn btn-outline" style="margin-top:14px" onclick="closeLangModal()">Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   SMRITICARE — APP LOGIC
+   ============================================================ */
+
+const LANGS = {
+  en:{name:'English', flag:'🇬🇧', voice:'en-IN'},
+  hi:{name:'हिन्दी',   flag:'🇮🇳', voice:'hi-IN'},
+  bn:{name:'বাংলা',   flag:'🇧🇩', voice:'bn-IN'},
+  as:{name:'অসমীয়া',  flag:'🌿', voice:'as-IN'},
+  mz:{name:'Mizo',     flag:'🏔️', voice:'en-IN'},
+  kh:{name:'Khasi',    flag:'🎋', voice:'en-IN'}
+};
+
+const T = {
+  en:{greet:'Namaste', firstMsg:'Your first session is ready. Let\'s begin.',
+      home:'Home', games:'Games', reminders:'Reminders', progress:'Progress', caregiver:'Caregiver',
+      good:'Very good!', tryAgain:'Try again', correct:'Correct!', wrong:'Not quite',
+      sessionDone:'Session complete! Great work.'},
+  hi:{greet:'नमस्ते', firstMsg:'आपका पहला सत्र तैयार है। शुरू करें।',
+      home:'होम', games:'खेल', reminders:'रिमाइंडर', progress:'प्रगति', caregiver:'देखभाल',
+      good:'बहुत अच्छा!', tryAgain:'फिर कोशिश करें', correct:'सही!', wrong:'गलत',
+      sessionDone:'सत्र पूरा! बहुत बढ़िया।'},
+  bn:{greet:'নমস্কার', firstMsg:'আপনার প্রথম সেশন প্রস্তুত। শুরু করুন।',
+      home:'হোম', games:'খেলা', reminders:'মনে করানো', progress:'অগ্রগতি', caregiver:'যত্ন',
+      good:'খুব ভালো!', tryAgain:'আবার চেষ্টা করুন', correct:'সঠিক!', wrong:'ভুল',
+      sessionDone:'সেশন সম্পূর্ণ! চমৎকার।'},
+  as:{greet:'নমস্কাৰ', firstMsg:'আপোনাৰ প্ৰথম Session সাজু। আৰম্ভ কৰক।',
+      home:'হোম', games:'খেল', reminders:'মনত পেলোৱা', progress:'অগ্ৰগতি', caregiver:'যত্ন',
+      good:'বৰ ভাল!', tryAgain:'পুনৰ চেষ্টা কৰক', correct:'শুদ্ধ!', wrong:'ভুল',
+      sessionDone:'Session সম্পূৰ্ণ! অসাধাৰণ।'},
+  mz:{greet:'Chibai', firstMsg:'I session hmasa a inpeih e. I tan ang.',
+      home:'In', games:'Infiamna', reminders:'Hriatrengna', progress:'Hmasawnna', caregiver:'Ngaihtuahna',
+      good:'A ṭha hle mai!', tryAgain:'Han tum leh rawh', correct:'A dik e!', wrong:'A dik lo',
+      sessionDone:'Session a zo ta! Ṭha hle mai.'},
+  kh:{greet:'Khublei', firstMsg:'Ka session kaba nyngkong ka la khreh. Ngi ia sdang.',
+      home:'Ing', games:'Jingïaleh', reminders:'Jingkynmaw', progress:'Jingïarap', caregiver:'Jingkyrshan',
+      good:'Babha!', tryAgain:'Ïaleh biang', correct:'Badei!', wrong:'Bymdei',
+      sessionDone:'Ka session ka la dep! Babha.'}
+};
+
+/* ---------- State ---------- */
+const state = {
+  user: null,
+  role: 'patient',
+  lang: 'en',
+  voiceOn: true,
+  online: navigator.onLine,
+  difficulty: 1,
+  gamesPlayed: 0,
+  correctCount: 0,
+  totalCount: 0,
+  history: [],
+  reminders: [
+    { id:1, time:'08:00', text:'Blood pressure tablet', type:'medicine', done:true },
+    { id:2, time:'10:00', text:'Drink 2 glasses of water', type:'hydration', done:true },
+    { id:3, time:'14:00', text:'Afternoon medicine', type:'medicine', done:false },
+    { id:4, time:'17:00', text:'Evening walk with son', type:'activity', done:false },
+    { id:5, time:'19:30', text:'Doctor appointment — Dr. Sharma', type:'appointment', done:false }
+  ]
+};
+
+/* ---------- Persistence ---------- */
+function save(){
+  try{
+    localStorage.setItem('smriticare', JSON.stringify({
+      user:state.user, role:state.role, lang:state.lang, voiceOn:state.voiceOn,
+      difficulty:state.difficulty, gamesPlayed:state.gamesPlayed,
+      correctCount:state.correctCount, totalCount:state.totalCount,
+      history:state.history, reminders:state.reminders
+    }));
+  }catch(e){}
+}
+function load(){
+  try{
+    const raw = localStorage.getItem('smriticare');
+    if(!raw) return false;
+    const d = JSON.parse(raw);
+    Object.assign(state, d);
+    return !!state.user;
+  }catch(e){ return false; }
+}
+
+/* ---------- Login ---------- */
+let pickedRole = 'patient';
+function pickRole(role){
+  pickedRole = role;
+  document.querySelectorAll('.role-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.role === role);
+  });
+}
+function quickLang(lang, e){
+  document.querySelectorAll('.lang-mini button').forEach(b=>b.classList.remove('active'));
+  if(e && e.target) e.target.classList.add('active');
+  document.getElementById('loginLang').value = lang;
+}
+function doLogin(){
+  const name = document.getElementById('loginName').value.trim() || 'Guest';
+  const phone = document.getElementById('loginPhone').value.trim();
+  const lang = document.getElementById('loginLang').value;
+
+  state.user = { name, phone, joined: Date.now() };
+  state.role = pickedRole;
+  state.lang = lang;
+
+  save();
+  enterApp();
+}
+function doLogout(){
+  if(!confirm('Sign out?')) return;
+  localStorage.removeItem('smriticare');
+  location.reload();
+}
+
+/* ---------- Enter app ---------- */
+function enterApp(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+
+  const initials = (state.user.name || 'U').charAt(0).toUpperCase();
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userName').textContent = state.user.name.split(' ')[0];
+
+  const t = T[state.lang] || T.en;
+  document.getElementById('greeting').textContent = `${t.greet}, ${state.user.name.split(' ')[0]} 👋`;
+  document.getElementById('dailyMsg').textContent = t.firstMsg;
+
+  renderReminders();
+  renderDashboard();
+  renderCaregiver();
+  updateConn();
+
+  toast(`Welcome, ${state.user.name.split(' ')[0]}!`);
+}
+
+/* ---------- Navigation ---------- */
+function switchScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+
+  const screen = document.getElementById('screen-'+name);
+  if(screen) screen.classList.add('active');
+  const tab = document.querySelector(`.tab[data-screen="${name}"]`);
+  if(tab) tab.classList.add('active');
+
+  if(name === 'reminders') renderReminders();
+  if(name === 'dashboard') renderDashboard();
+  if(name === 'caregiver') renderCaregiver();
+  if(name === 'games'){
+    document.getElementById('gameMenu').style.display = 'block';
+    document.getElementById('gamePlay').style.display = 'none';
+    document.getElementById('gamePlay').innerHTML = '';
+  }
+}
+
+/* ============================================================
+   VOICE
+   ============================================================ */
+function speak(text, lang){
+  if(!state.voiceOn || !('speechSynthesis' in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const lc = LANGS[lang || state.lang];
+    u.lang = lc ? lc.voice : 'en-IN';
+    u.rate = 0.9;
+    u.pitch = 1.0;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function toggleVoice(){
+  state.voiceOn = !state.voiceOn;
+  document.getElementById('voiceBtn').textContent = state.voiceOn ? '🔊' : '🔇';
+  toast(state.voiceOn ? 'Voice ON' : 'Voice OFF');
+  save();
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+/* ============================================================
+   CONNECTION
+   ============================================================ */
+function updateConn(){
+  const dot = document.getElementById('connDot');
+  const txt = document.getElementById('connText');
+  const on = navigator.onLine;
+  if(txt){
+    txt.textContent = on ? 'Online' : 'Offline';
+  }
+}
+window.addEventListener('online', ()=>{ updateConn(); toast('Back online — syncing…'); forceSync(); });
+window.addEventListener('offline', ()=>{ updateConn(); toast('Offline mode — data saved locally'); });
+
+function forceSync(){
+  document.getElementById('syncMsg').textContent = 'Syncing…';
+  setTimeout(()=>{
+    document.getElementById('syncMsg').textContent =
+      'All session data synced. Last sync: ' + new Date().toLocaleTimeString();
+    toast('Sync complete ✓');
+  }, 800);
+}
+
+/* ============================================================
+   REMINDERS
+   ============================================================ */
+function renderReminders(){
+  const list = document.getElementById('reminderList');
+  if(!list) return;
+  list.innerHTML = '';
+  state.reminders.sort((a,b)=>a.time.localeCompare(b.time));
+  state.reminders.forEach(r=>{
+    const div = document.createElement('div');
+    div.className = 'reminder' + (r.done ? ' done' : '');
+    div.innerHTML = `
+      <div class="rem-time">${r.time}</div>
+      <div class="rem-text">
+        <strong>${escapeHtml(r.text)}</strong>
+        <small>${r.type}</small>
+      </div>
+      <button class="rem-check" onclick="toggleReminder(${r.id})">${r.done ? '✓' : ''}</button>
+    `;
+    list.appendChild(div);
+  });
+
+  const pending = state.reminders.filter(r=>!r.done).length;
+  const rc = document.getElementById('remCountHome');
+  if(rc) rc.textContent = pending + ' pending';
+}
+function toggleReminder(id){
+  const r = state.reminders.find(x=>x.id === id);
+  if(!r) return;
+  r.done = !r.done;
+  save(); renderReminders();
+  if(r.done){
+    toast('✓ ' + r.text);
+    speak('Done. ' + r.text);
+  }
+}
+function addReminder(){
+  const text = document.getElementById('newRemText').value.trim();
+  const time = document.getElementById('newRemTime').value || '09:00';
+  if(!text){ toast('Please enter reminder text'); return; }
+  state.reminders.push({
+    id: Date.now(), time, text, type: 'custom', done: false
+  });
+  document.getElementById('newRemText').value = '';
+  save(); renderReminders();
+  toast('Reminder added ✓');
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+function renderDashboard(){
+  const total = state.totalCount || 0;
+  const correct = state.correctCount || 0;
+  const acc = total ? Math.round((correct/total)*100) : 0;
+
+  document.getElementById('statSessions').textContent = state.history.length;
+  document.getElementById('statAccuracy').textContent = acc + '%';
+  document.getElementById('statLevel').textContent = state.difficulty;
+  document.getElementById('statGames').textContent = state.gamesPlayed;
+
+  // Weekly bar chart
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const values = [12, 18, 8, 22, 15, 20, 10]; // placeholder — realistic
+  const chart = document.getElementById('weeklyChart');
+  chart.innerHTML = '';
+  const max = Math.max(...values, 1);
+  values.forEach((v,i)=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'bar-wrap';
+    wrap.innerHTML = `
+      <div class="bar" style="height:${(v/max)*140}px"></div>
+      <div class="bar-lbl">${days[i]}</div>
+    `;
+    chart.appendChild(wrap);
+  });
+
+  // Domain bars
+  const domains = [
+    { name:'Memory', val: clamp(50 + acc/2 + state.difficulty*3, 20, 98) },
+    { name:'Attention', val: clamp(55 + acc/2 + state.difficulty*2, 20, 98) },
+    { name:'Recognition', val: clamp(60 + acc/2, 20, 98) },
+    { name:'Emotional', val: clamp(70 + state.gamesPlayed*2, 20, 98) }
+  ];
+  const db = document.getElementById('domainBars');
+  db.innerHTML = '';
+  domains.forEach(d=>{
+    const row = document.createElement('div');
+    row.style.marginTop = '14px';
+    row.innerHTML = `
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <strong>${d.name}</strong><span>${Math.round(d.val)}%</span>
+      </div>
+      <div class="progress-strip"><i style="width:${d.val}%"></i></div>
+    `;
+    db.appendChild(row);
+  });
+
+  // Weekly progress
+  const wp = Math.min(100, state.history.length * 14);
+  document.getElementById('weekProgress').style.width = wp + '%';
+  document.getElementById('weekLabel').textContent =
+    `Weekly goal: ${state.history.length} of 7 sessions complete — ${wp}%`;
+}
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+/* ============================================================
+   CAREGIVER
+   ============================================================ */
+function renderCaregiver(){
+  const total = state.totalCount || 0;
+  const correct = state.correctCount || 0;
+  const acc = total ? Math.round((correct/total)*100) : 0;
+
+  document.getElementById('cgSessions').textContent = state.history.length + '/7';
+  document.getElementById('cgAccuracy').textContent = acc + '%';
+
+  const alerts = [];
+  const missed = state.reminders.filter(r=>!r.done).length;
+  if(missed > 0) alerts.push({ type:'warn', icon:'⚠️', title:`${missed} pending reminder(s)`, sub:'Some medications or activities not yet confirmed' });
+  if(state.history.length >= 3) alerts.push({ type:'ok', icon:'✅', title:'Regular engagement', sub:'Patient completing sessions consistently' });
+  if(acc >= 70) alerts.push({ type:'ok', icon:'📈', title:'Performance improving', sub:`Accuracy at ${acc}% — above threshold` });
+  if(state.difficulty >= 3) alerts.push({ type:'ok', icon:'🧠', title:'Cognitive load increased', sub:`AI raised difficulty to level ${state.difficulty}` });
+
+  document.getElementById('cgAlerts').textContent = alerts.filter(a=>a.type==='warn').length;
+
+  const list = document.getElementById('alertList');
+  list.innerHTML = '';
+  alerts.forEach(a=>{
+    const div = document.createElement('div');
+    div.className = 'alert-row ' + a.type;
+    div.innerHTML = `
+      <div class="ar-icon">${a.icon}</div>
+      <div class="ar-body">
+        <strong>${a.title}</strong>
+        <small>${a.sub}</small>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+function caregiverCheck(mood){
+  toast('Thanks — logged: ' + mood);
+  speak('Thank you. Noted ' + mood);
+}
+
+/* ============================================================
+   LANGUAGE MODAL
+   ============================================================ */
+function openLangModal(){
+  const list = document.getElementById('langList');
+  list.innerHTML = '';
+  Object.keys(LANGS).forEach(code=>{
+    const b = document.createElement('button');
+    b.className = 'btn btn-outline';
+    b.style.marginBottom = '8px';
+    b.style.justifyContent = 'space-between';
+    b.innerHTML = `<span>${LANGS[code].name}</span><span>${LANGS[code].flag}</span>`;
+    b.onclick = ()=>setLang(code);
+    if(code === state.lang) b.style.borderColor = 'var(--primary)';
+    list.appendChild(b);
+  });
+  document.getElementById('langModal').classList.add('show');
+}
+function closeLangModal(){
+  document.getElementById('langModal').classList.remove('show');
+}
+function setLang(code){
+  state.lang = code; save();
+  const t = T[code] || T.en;
+  document.getElementById('greeting').textContent =
+    `${t.greet}, ${state.user.name.split(' ')[0]} 👋`;
+  document.getElementById('dailyMsg').textContent = t.firstMsg;
+  toast('Language: ' + LANGS[code].name);
+  speak('Language changed to ' + LANGS[code].name);
+  closeLangModal();
+}
+
+/* ============================================================
+   GAMES ENGINE
+   ============================================================ */
+let currentGame = null;
+let gameState = {};
+
+function startGame(type){
+  document.getElementById('gameMenu').style.display = 'none';
+  document.getElementById('gamePlay').style.display = 'block';
+  currentGame = type;
+  gameState = { correct:0, total:0, round:0, startTime:Date.now() };
+
+  const map = {
+    memory: initMemoryGame,
+    sequence: initSequenceGame,
+    routine: initRoutineGame,
+    pattern: initPatternGame,
+    emotion: initEmotionGame,
+    attention: initAttentionGame
+  };
+  (map[type] || initMemoryGame)();
+}
+
+function gameHeader(title, subtitle){
+  return `
+    <div class="game-header">
+      <div>
+        <div class="game-title">${title}</div>
+        <div style="color:var(--muted);font-size:.9rem">${subtitle}</div>
+      </div>
+      <div class="game-meta">
+        <span class="chip blue">Level ${state.difficulty}</span>
+        <button class="btn btn-outline btn-small" onclick="quitGame()">Exit</button>
+      </div>
+    </div>`;
+}
+function quitGame(){
+  document.getElementById('gamePlay').style.display = 'none';
+  document.getElementById('gameMenu').style.display = 'block';
+  document.getElementById('gamePlay').innerHTML = '';
+  currentGame = null;
+}
+
+function finishGame(){
+  state.gamesPlayed++;
+  state.totalCount += gameState.total;
+  state.correctCount += gameState.correct;
+
+  const acc = gameState.total ? gameState.correct / gameState.total : 0;
+
+  // AI adaptive difficulty
+  if(acc >= 0.8 && state.difficulty < 5) state.difficulty++;
+  else if(acc < 0.4 && state.difficulty > 1) state.difficulty--;
+
+  state.history.push({
+    game: currentGame,
+    correct: gameState.correct,
+    total: gameState.total,
+    difficulty: state.difficulty,
+    when: Date.now()
+  });
+
+  save();
+  renderDashboard();
+  renderCaregiver();
+
+  const t = T[state.lang] || T.en;
+  speak(t.sessionDone);
+
+  document.getElementById('gamePlay').innerHTML = `
+    <div class="card" style="text-align:center">
+      <div style="font-size:4rem;margin-bottom:10px">🎉</div>
+      <h2 class="section-title">${t.sessionDone}</h2>
+      <p class="section-sub">You got <strong>${gameState.correct}</strong> out of <strong>${gameState.total}</strong> correct.</p>
+      <div class="stat-grid" style="margin:20px 0">
+        <div class="stat"><div class="val">${gameState.correct}</div><div class="lbl">Correct</div></div>
+        <div class="stat"><div class="val">${Math.round(acc*100)}%</div><div class="lbl">Accuracy</div></div>
+        <div class="stat"><div class="val">${state.difficulty}</div><div class="lbl">AI Level</div></div>
+      </div>
+      <button class="btn btn-primary" style="width:auto" onclick="quitGame()">Back to Games</button>
+    </div>`;
+}
+
+/* ---------- 1. MEMORY MATCH ---------- */
+function initMemoryGame(){
+  const emojis = ['🌺','🐘','🏔️','🦚','🎋','🪷','🥁','🛕','🍃','🐟','🌾','🪔'];
+  const pairCount = Math.min(3 + state.difficulty, 8); // 4..8 pairs
+  const picks = emojis.slice(0, pairCount);
+  const deck = [...picks, ...picks].sort(()=>Math.random()-0.5);
+
+  gameState.total = pairCount;
+  gameState.correct = 0;
+  gameState.matched = 0;
+  gameState.flipped = [];
+
+  render(`
+    ${gameHeader('🃏 Memory Match', 'Find all matching pairs')}
+    <div class="game-board" id="board" style="grid-template-columns:repeat(${pairCount <= 4 ? 4 : 4},1fr)"></div>
+    <div class="progress-strip"><i id="memProg" style="width:0%"></i></div>
+    <p style="text-align:center;color:var(--muted)" id="memStatus">Matched 0 of ${pairCount}</p>
+  `);
+
+  const board = document.getElementById('board');
+  deck.forEach((emo, i)=>{
+    const t = document.createElement('button');
+    t.className = 'tile';
+    t.textContent = '?';
+    t.dataset.emo = emo;
+    t.dataset.index = i;
+    t.onclick = ()=>flipMemory(t);
+    board.appendChild(t);
+  });
+
+  speak('Find the matching pairs');
+}
+
+function flipMemory(tile){
+  if(tile.classList.contains('matched') || tile.classList.contains('flipped')) return;
+  if(gameState.flipped.length >= 2) return;
+
+  tile.textContent = tile.dataset.emo;
+  tile.classList.add('flipped');
+  gameState.flipped.push(tile);
+
+  if(gameState.flipped.length === 2){
+    const [a,b] = gameState.flipped;
+    if(a.dataset.emo === b.dataset.emo){
+      a.classList.add('matched'); b.classList.add('matched');
+      gameState.matched++;
+      gameState.correct++;
+      gameState.flipped = [];
+      document.getElementById('memProg').style.width =
+        (gameState.matched / gameState.total * 100) + '%';
+      document.getElementById('memStatus').textContent =
+        `Matched ${gameState.matched} of ${gameState.total}`;
+      speak((T[state.lang]||T.en).correct);
+      if(gameState.matched === gameState.total){
+        setTimeout(finishGame, 700);
+      }
+    } else {
+      setTimeout(()=>{
+        a.textContent = '?'; b.textContent = '?';
+        a.classList.remove('flipped'); b.classList.remove('flipped');
+        gameState.flipped = [];
+      }, 900);
+    }
+  }
+}
+
+/* ---------- 2. NUMBER RECALL ---------- */
+function initSequenceGame(){
+  gameState.total = 5;
+  gameState.correct = 0;
+  gameState.round = 0;
+  nextSequence();
+}
+function nextSequence(){
+  if(gameState.round >= gameState.total){ finishGame(); return; }
+  gameState.round++;
+
+  const len = 3 + state.difficulty; // 4..8 digits
+  const seq = Array.from({length:len}, ()=>Math.floor(Math.random()*10)).join('');
+
+  render(`
+    ${gameHeader('🔢 Number Recall', `Round ${gameState.round} of ${gameState.total}`)}
+    <div class="prompt-box">
+      <div class="prompt-text" style="font-size:2.6rem;letter-spacing:8px">${seq}</div>
+      <p style="margin-top:12px;color:var(--muted)">Memorize this number…</p>
+    </div>
+    <p style="text-align:center;color:var(--muted)" id="seqStatus">Get ready…</p>
+    <div id="seqOptions" class="choice-row" style="display:none"></div>
+  `);
+
+  speak(seq.split('').join(' '));
+  let countdown = 3 + Math.floor(len/2);
+  const status = document.getElementById('seqStatus');
+  const timer = setInterval(()=>{
+    status.textContent = `Hide in ${countdown}…`;
+    countdown--;
+    if(countdown < 0){
+      clearInterval(timer);
+      showOptions(seq);
+    }
+  }, 1000);
+}
+function showOptions(correct){
+  document.querySelector('.prompt-box').innerHTML = `
+    <div class="big-emoji">🤔</div>
+    <div class="prompt-text">Which number did you see?</div>`;
+  document.getElementById('seqStatus').textContent = 'Choose the correct number';
+
+  // Generate 3 wrong options of same length
+  const wrongs = new Set();
+  while(wrongs.size < 3){
+    let w = '';
+    for(let i=0;i<correct.length;i++) w += Math.floor(Math.random()*10);
+    if(w !== correct) wrongs.add(w);
+  }
+  const opts = [correct, ...wrongs].sort(()=>Math.random()-0.5);
+
+  const box = document.getElementById('seqOptions');
+  box.style.display = 'grid';
+  opts.forEach(o=>{
+    const b = document.createElement('button');
+    b.className = 'choice-btn';
+    b.textContent = o;
+    b.onclick = ()=>{
+      if(o === correct){
+        b.classList.add('correct');
+        gameState.correct++;
+        speak((T[state.lang]||T.en).correct);
+        setTimeout(nextSequence, 800);
+      } else {
+        b.classList.add('wrong');
+        speak((T[state.lang]||T.en).wrong);
+        // reveal correct
+        [...box.children].forEach(c=>{
+          if(c.textContent === correct) c.classList.add('correct');
+        });
+        setTimeout(nextSequence, 1200);
+      }
+    };
+    box.appendChild(b);
+  });
+}
+
+/* ---------- 3. DAILY ROUTINE ---------- */
+function initRoutineGame(){
+  const routines = [
+    { icon:'🛏️', text:'Wake up', order:1 },
+    { icon:'🪥', text:'Brush teeth', order:2 },
+    { icon:'🍵', text:'Morning tea', order:3 },
+    { icon:'💊', text:'Take medicine', order:4 },
+    { icon:'🚶', text:'Morning walk', order:5 },
+    { icon:'🍛', text:'Lunch', order:6 },
+    { icon:'😴', text:'Afternoon rest', order:7 },
+    { icon:'📻', text:'Listen to radio', order:8 },
+    { icon:'🍲', text:'Dinner', order:9 },
+    { icon:'🌙', text:'Sleep', order:10 }
+  ];
+  const count = Math.min(3 + state.difficulty, 6);
+  const picks = routines.slice(0, count).sort(()=>Math.random()-0.5);
+
+  gameState.total = 1;
+  gameState.correct = 0;
+  gameState.routinePicks = picks;
+  gameState.userOrder = [];
+
+  render(`
+    ${gameHeader('☀️ Daily Routine', 'Tap activities in the correct order')}
+    <p style="text-align:center;color:var(--muted);margin-bottom:14px">
+      Tap them from morning to night
+    </p>
+    <div id="routineList" class="grid-2"></div>
+    <div class="progress-strip"><i id="routineProg" style="width:0%"></i></div>
+    <p style="text-align:center;color:var(--muted)" id="routineStatus">0 of ${count} placed</p>
+  `);
+
+  const list = document.getElementById('routineList');
+  picks.forEach(p=>{
+    const b = document.createElement('button');
+    b.className = 'big-btn';
+    b.innerHTML = `<div class="bb-icon">${p.icon}</div><div class="bb-text"><strong>${p.text}</strong></div>`;
+    b.onclick = ()=>pickRoutine(p, b);
+    list.appendChild(b);
+  });
+  speak('Tap the activities in the correct order from morning to night');
+}
+function pickRoutine(p, btn){
+  if(btn.disabled) return;
+  btn.disabled = true;
+  btn.style.opacity = 0.5;
+  gameState.userOrder.push(p);
+  const n = gameState.userOrder.length;
+  document.getElementById('routineProg').style.width =
+    (n / gameState.routinePicks.length * 100) + '%';
+  document.getElementById('routineStatus').textContent =
+    `${n} of ${gameState.routinePicks.length} placed`;
+
+  if(n === gameState.routinePicks.length){
+    const sorted = [...gameState.routinePicks].sort((a,b)=>a.order - b.order);
+    const isCorrect = gameState.userOrder.every((u,i)=>u.order === sorted[i].order);
+    if(isCorrect){
+      gameState.correct = 1;
+      speak('Perfect! Well done.');
+    } else {
+      speak('Good try. The correct order was shown.');
+    }
+    setTimeout(finishGame, 900);
+  }
+}
+
+/* ---------- 4. PATTERN RECOGNITION ---------- */
+function initPatternGame(){
+  gameState.total = 5;
+  gameState.correct = 0;
+  gameState.round = 0;
+  nextPattern();
+}
+function nextPattern(){
+  if(gameState.round >= gameState.total){ finishGame(); return; }
+  gameState.round++;
+
+  const sets = [
+    { q:'Which one is a fruit?', correct:'🍌', wrongs:['🥕','🥔','🌽'] },
+    { q:'Which one do we drink?', correct:'💧', wrongs:['🍞','🧱','📚'] },
+    { q:'Which one is an animal?', correct:'🐘', wrongs:['🌳','🪑','🚗'] },
+    { q:'Which one tells time?', correct:'⌚', wrongs:['🥄','🪣','📕'] },
+    { q:'Which one is used to write?', correct:'✏️', wrongs:['🍽️','🧦','🪑'] },
+    { q:'Which one is a vegetable?', correct:'🥕', wrongs:['🍎','🍌','🍇'] },
+    { q:'Which one is a flower?', correct:'🌺', wrongs:['🪨','🧱','🪵'] },
+    { q:'Which one is for rain?', correct:'☂️', wrongs:['🕶️','👕','🧢'] }
+  ];
+  const s = sets[Math.floor(Math.random()*sets.length)];
+  const opts = [s.correct, ...s.wrongs].sort(()=>Math.random()-0.5);
+
+  render(`
+    ${gameHeader('🎨 Pattern & Objects', `Round ${gameState.round} of ${gameState.total}`)}
+    <div class="prompt-box">
+      <div class="prompt-text">${s.q}</div>
+    </div>
+    <div class="choice-row" id="patOpts" style="grid-template-columns:repeat(2,1fr);display:grid"></div>
+  `);
+  speak(s.q);
+
+  const box = document.getElementById('patOpts');
+  opts.forEach(o=>{
+    const b = document.createElement('button');
+    b.className = 'choice-btn';
+    b.style.fontSize = '2.4rem';
+    b.textContent = o;
+    b.onclick = ()=>{
+      if(o === s.correct){
+        b.classList.add('correct');
+        gameState.correct++;
+        speak((T[state.lang]||T.en).correct);
+        setTimeout(nextPattern, 700);
+      } else {
+        b.classList.add('wrong');
+        speak((T[state.lang]||T.en).wrong);
+        [...box.children].forEach(c=>{
+          if(c.textContent === s.correct) c.classList.add('correct');
+        });
+        setTimeout(nextPattern, 1200);
+      }
+    };
+    box.appendChild(b);
+  });
+}
+
+/* ---------- 5. EMOTION MATCH ---------- */
+function initEmotionGame(){
+  const emotions = [
+    { emoji:'😊', label:'Happy', q:'Which face shows HAPPY?' },
+    { emoji:'😢', label:'Sad', q:'Which face shows SAD?' },
+    { emoji:'😠', label:'Angry', q:'Which face shows ANGRY?' },
+    { emoji:'😨', label:'Scared', q:'Which face shows SCARED?' },
+    { emoji:'😴', label:'Tired', q:'Which face shows TIRED?' },
+    { emoji:'🤗', label:'Loved', q:'Which face shows LOVED?' }
+  ];
+  const all = ['😊','😢','😠','😨','😴','🤗','😐','😃'];
+
+  gameState.total = 5;
+  gameState.correct = 0;
+  gameState.round = 0;
+  gameState.emotions = emotions;
+  gameState.allFaces = all;
+  nextEmotion();
+}
+function nextEmotion(){
+  if(gameState.round >= gameState.total){ finishGame(); return; }
+  gameState.round++;
+
+  const target = gameState.emotions[Math.floor(Math.random()*gameState.emotions.length)];
+  const others = gameState.allFaces.filter(f=>f !== target.emoji).sort(()=>Math.random()-0.5).slice(0,3);
+  const opts = [target.emoji, ...others].sort(()=>Math.random()-0.5);
+
+  render(`
+    ${gameHeader('😊 Emotion Match', `Round ${gameState.round} of ${gameState.total}`)}
+    <div class="prompt-box">
+      <div class="prompt-text">${target.q}</div>
+    </div>
+    <div class="choice-row" id="emoOpts" style="grid-template-columns:repeat(2,1fr);display:grid"></div>
+  `);
+  speak(target.q);
+
+  const box = document.getElementById('emoOpts');
+  opts.forEach(o=>{
+    const b = document.createElement('button');
+    b.className = 'choice-btn';
+    b.style.fontSize = '3rem';
+    b.style.padding = '30px';
+    b.textContent = o;
+    b.onclick = ()=>{
+      if(o === target.emoji){
+        b.classList.add('correct');
+        gameState.correct++;
+        speak('Yes, ' + target.label);
+        setTimeout(nextEmotion, 800);
+      } else {
+        b.classList.add('wrong');
+        speak('Try again');
+        [...box.children].forEach(c=>{
+          if(c.textContent === target.emoji) c.classList.add('correct');
+        });
+        setTimeout(nextEmotion, 1200);
+      }
+    };
+    box.appendChild(b);
+  });
+}
+
+/* ---------- 6. FOCUS TAP (Attention) ---------- */
+function initAttentionGame(){
+  gameState.total = 8;
+  gameState.correct = 0;
+  gameState.round = 0;
+  gameState.timeLeft = 30;
+  gameState.targetEmoji = '🌟';
+
+  render(`
+    ${gameHeader('🎯 Focus Tap', 'Tap only the stars ⭐')}
+    <div class="prompt-box" style="padding:16px">
+      <div class="prompt-text" id="attnTimer">30s</div>
+    </div>
+    <div id="attnBoard" style="position:relative;height:400px;border-radius:16px;
+      background:linear-gradient(135deg,#f2f7fa,#e3eff6);border:2px solid #b8d0dd;overflow:hidden">
+    </div>
+  `);
+
+  const board = document.getElementById('attnBoard');
+  const spawn = ()=>{
+    if(gameState.timeLeft <= 0 || gameState.round >= gameState.total) return;
+    gameState.round++;
+
+    const isTarget = Math.random() > 0.4;
+    const el = document.createElement('button');
+    el.style.position = 'absolute';
+    el.style.width = '70px';
+    el.style.height = '70px';
+    el.style.borderRadius = '50%';
+    el.style.fontSize = '2rem';
+    el.style.background = '#fff';
+    el.style.border = '2px solid var(--border)';
+    el.style.left = Math.random() * (board.clientWidth - 70) + 'px';
+    el.style.top = Math.random() * (board.clientHeight - 70) + 'px';
+    el.textContent = isTarget ? '⭐' : ['🔵','🟢','🟡','🟣'][Math.floor(Math.random()*4)];
+
+    el.onclick = ()=>{
+      if(isTarget){
+        gameState.correct++;
+        el.style.background = '#d9f0e4';
+      } else {
+        el.style.background = '#f6dede';
+      }
+      el.disabled = true;
+      setTimeout(()=>el.remove(), 300);
+    };
+    board.appendChild(el);
+    setTimeout(()=>{ if(el.parentNode) el.remove(); }, 2200);
+  };
+
+  const interval = setInterval(spawn, 900);
+  const timerInt = setInterval(()=>{
+    gameState.timeLeft--;
+    const t = document.getElementById('attnTimer');
+    if(t) t.textContent = gameState.timeLeft + 's';
+    if(gameState.timeLeft <= 0){
+      clearInterval(timerInt);
+      clearInterval(interval);
+      setTimeout(finishGame, 500);
+    }
+  }, 1000);
+
+  speak('Tap the stars only');
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function render(html){
+  document.getElementById('gamePlay').innerHTML = html;
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+(function boot(){
+  // Restore saved session if exists
+  if(load() && state.user){
+    document.getElementById('voiceBtn').textContent = state.voiceOn ? '🔊' : '🔇';
+    enterApp();
+  } else {
+    // Show login
+    document.getElementById('loginScreen').style.display = 'grid';
+  }
+})();
+</script>
+</body>
+</html>
